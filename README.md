@@ -598,7 +598,7 @@ They highlight in red version bumps that may not be binary compatible, changing 
 
 The `coursier bootstrap` command generates tiny bootstrap launchers (~12 kB). These are able to download their dependencies upon first launch, then launch the corresponding application. E.g. to generate a launcher for scalafmt,
 ```
-$ coursier bootstrap com.geirsson:scalafmt-cli_2.11:0.2.3 -o scalafmt
+$ coursier bootstrap com.geirsson:scalafmt-cli_2.11:0.4.8 --main org.scalafmt.cli.Cli -o scalafmt
 ```
 
 This generates a `scalafmt` file, which is a tiny JAR, corresponding to the `bootstrap` sub-project of coursier. It contains resource files, with the URLs of the various dependencies of scalafmt. On first launch, these are downloaded under `~/.coursier/bootstrap/com.geirsson/scalafmt-cli_2.11` (following the organization and name of the first dependency - note that this directory can be changed with the `-D` option). Nothing needs to be downloaded once all the dependencies are there, and the application is then launched straightaway.
