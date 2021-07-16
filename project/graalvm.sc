@@ -25,7 +25,7 @@ def generateNativeImage(
   classPath: Seq[os.Path],
   mainClass: String,
   dest: os.Path,
-  isMusl: Boolean
+  isMusl: Boolean = false
 ): Unit = {
 
   val graalVmHome = Option(System.getenv("GRAALVM_HOME")).getOrElse {

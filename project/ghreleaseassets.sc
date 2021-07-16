@@ -191,7 +191,9 @@ def copyLauncher(
   nativeLauncher: os.Path,
   directory: os.Path
 ): Unit = {
-  val name = s"cs-$platformSuffix$platformExtension"
+  val isMusl = System.getenv("NATIVE_IMAGE_LIBC") == "musl"
+  val muslSuffix = if (isMusl) "-musl" else ""
+  val name = s"cs$muslSuffix-$platformSuffix$platformExtension"
   if (Properties.isWin)
     writeInZip(name, nativeLauncher, directory / s"cs-$platformSuffix.zip")
   else {
