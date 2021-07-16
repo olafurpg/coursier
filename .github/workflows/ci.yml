@@ -152,6 +152,12 @@ jobs:
       fail-fast: false
       matrix:
         OS: ["ubuntu-latest", "windows-2016", "macos-latest"]
+        static: [true, false]
+        exclude:
+          - os: windows-2016
+            static: true
+          - os: macos-latest
+            static: true
     steps:
       - uses: actions/checkout@v2
         with:
@@ -163,6 +169,8 @@ jobs:
           jvm: 8
       - name: Copy artifacts
         run: ./mill -i copyLauncher artifacts/
+        env:
+          NATIVE_IMAGE_STATIC: ${{ matrix.static }}
       - uses: actions/upload-artifact@v2.2.3
         with:
           name: launchers

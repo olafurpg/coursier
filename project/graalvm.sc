@@ -24,12 +24,15 @@ def generateNativeImage(
   graalVmVersion: String,
   classPath: Seq[os.Path],
   mainClass: String,
-  dest: os.Path
+  dest: os.Path,
+  isMostlyStatic: Boolean = false
 ): Unit = {
+
+  val actualVersion = if (isMostlyStatic) "20.2.0" else graalVmVersion
 
   val graalVmHome = Option(System.getenv("GRAALVM_HOME")).getOrElse {
     import sys.process._
-    Seq(cs.cs, "java-home", "--jvm", s"graalvm-java11:$graalVmVersion", "--jvm-index", jvmIndex).!!.trim
+    Seq(cs.cs, "java-home", "--jvm", s"graalvm-java11:$actualVersion", "--jvm-index", jvmIndex).!!.trim
   }
 
   val ext = if (Properties.isWin) ".cmd" else ""
@@ -67,6 +70,10 @@ def generateNativeImage(
         "--no-server",
         "-J-Xmx6g",
         "--verbose"
+      )
+    else if (isMostlyStatic)
+      Seq(
+        "-H:+StaticExecutableWithDynamicLibC"
       )
     else Nil
 

@@ -57,8 +57,9 @@ trait Launchers extends SbtModule {
     val mainClass0 = mainClass().getOrElse(sys.error("No main class"))
     val dest = T.ctx().dest / "cs"
     val actualDest = T.ctx().dest / s"cs$platformExtension"
+    val isMostlyStatic = System.getenv("NATIVE_IMAGE_MOSTLY_STATIC") == "true"
 
-    graalvm.generateNativeImage(graalVmVersion, cp, mainClass0, dest)
+    graalvm.generateNativeImage(graalVmVersion, cp, mainClass0, dest, isMostlyStatic)
 
     PathRef(actualDest)
   }
