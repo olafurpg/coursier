@@ -71,8 +71,7 @@ def generateNativeImage(
       )
     else if (isMusl)
       Seq(
-        "--static",
-        "--libc=musl",
+        "-H:+StaticExecutableWithDynamicLibC",
       )
     else Nil
 
