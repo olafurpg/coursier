@@ -24,7 +24,8 @@ def generateNativeImage(
   graalVmVersion: String,
   classPath: Seq[os.Path],
   mainClass: String,
-  dest: os.Path
+  dest: os.Path,
+  isMusl: Boolean
 ): Unit = {
 
   val graalVmHome = Option(System.getenv("GRAALVM_HOME")).getOrElse {
@@ -67,6 +68,11 @@ def generateNativeImage(
         "--no-server",
         "-J-Xmx6g",
         "--verbose"
+      )
+    else if (isMusl)
+      Seq(
+        "--static",
+        "--libc=musl",
       )
     else Nil
 

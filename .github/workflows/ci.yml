@@ -3,6 +3,7 @@ on:
   push:
     branches:
     - master
+    - musl
     tags:
     - "v*"
   pull_request:
@@ -152,6 +153,12 @@ jobs:
       fail-fast: false
       matrix:
         OS: ["ubuntu-latest", "windows-2016", "macos-latest"]
+        libc: [glibc, musl]
+        exclude:
+          - os: macos-latest
+            libc: musl
+          - os: windows-2016
+            libc: musl
     steps:
       - uses: actions/checkout@v2
         with:
@@ -161,8 +168,38 @@ jobs:
       - uses: coursier/setup-action@v1
         with:
           jvm: 8
+      - if: matrix.libc == 'musl'
+        name: Create result directory
+        run: |
+          RESULT_DIR=$PWD/staticlibs
+          mkdir $RESULT_DIR
+          echo $RESULT_DIR/bin >> $GITHUB_PATH
+          echo "result_dir=$RESULT_DIR/bin" >> $GITHUB_ENV
+      - if: matrix.libc == 'musl'
+        name: Install musl/zlip
+        run: |
+          curl -L -o musl.tar.gz https://musl.libc.org/releases/musl-1.2.1.tar.gz
+          mkdir musl
+          tar -xvzf musl.tar.gz -C musl --strip-components 1
+          cd musl
+          ./configure --disable-shared --prefix=${{ env.result_dir }}
+          make
+          make install
+      - if: matrix.libc == 'musl'
+        name: Install zlib
+        run: |
+          export CC=musl-gcc
+          curl -L -o zlib.tar.gz https://zlib.net/zlib-1.2.11.tar.gz
+          mkdir zlib
+          tar -xvzf zlib.tar.gz -C zlib --strip-components 1
+          cd zlib
+          ./configure --disable-shared --prefix=${{ env.result_dir }}
+          make
+          make install
       - name: Copy artifacts
         run: ./mill -i copyLauncher artifacts/
+        env:
+          NATIVE_IMAGE_LIBC: ${{ matrix.libc }}
       - uses: actions/upload-artifact@v2.2.3
         with:
           name: launchers

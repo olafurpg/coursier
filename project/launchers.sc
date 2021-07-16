@@ -55,8 +55,10 @@ trait Launchers extends SbtModule {
   def nativeImage = T{
     val cp = runClasspath().map(_.path)
     val mainClass0 = mainClass().getOrElse(sys.error("No main class"))
-    val dest = T.ctx().dest / "cs"
-    val actualDest = T.ctx().dest / s"cs$platformExtension"
+    val isMusl = System.getenv("NATIVE_IMAGE_LIBC") == "musl"
+    val binaryName = if (isMusl) "cs-musl" else "cs"
+    val dest = T.ctx().dest / binaryName
+    val actualDest = T.ctx().dest / s"$binaryName$platformExtension"
 
     graalvm.generateNativeImage(graalVmVersion, cp, mainClass0, dest)
 
